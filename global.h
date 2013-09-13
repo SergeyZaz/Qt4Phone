@@ -41,6 +41,7 @@ const char RTPPortMaxConfigKey[] = "RTPPortMax";
 const char NoTunnelingConfigKey[] = "NoTunneling";
 const char DtmfAsStringConfigKey[] = "DtmfAsString";
 const char AutoAnswerConfigKey[] = "AutoAnswer";
+const char AutoMuteConfigKey[] = "AutoMute";
 const char UsernameConfigKey[] = "Username";
 const char AliasConfigKey[] = "UserAliases";
 const char UseGatekeeperConfigKey[] = "UseGatekeeper";

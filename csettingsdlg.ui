@@ -61,6 +61,13 @@
         </widget>
        </item>
        <item>
+        <widget class="QCheckBox" name="ckbAutoMute">
+         <property name="text">
+          <string>Выключать микрофон при ответе</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QCheckBox" name="IDS_DTMFSTRSTR">
          <property name="text">
           <string>DTMF как строку</string>
@@ -957,11 +964,6 @@
         </widget>
        </item>
       </layout>
-     </widget>
-     <widget class="QWidget" name="tab_6">
-      <attribute name="title">
-       <string>Интерфейс</string>
-      </attribute>
      </widget>
     </widget>
    </item>

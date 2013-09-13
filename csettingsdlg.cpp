@@ -61,6 +61,7 @@ void CSettingsDlg::readIni()
 	ui.IDS_RINGFSTR->setText(QString((const char*)config.GetString(RingSoundFileConfigKey, "call.wav")));
 	
 	ui.IDS_AANSWERSTR->setChecked(p_endpoint->m_fAutoAnswer);
+	ui.ckbAutoMute->setChecked(p_endpoint->m_AutoMute);
 	ui.IDS_DTMFSTRSTR->setChecked(p_endpoint->m_fDtmfAsString);
 	ui.IDS_D242STR->setChecked(p_endpoint->DisableH245Tunnelling());
 	ui.IDS_DFSTARTSTR->setChecked(p_endpoint->m_fNoFastStart);
@@ -212,6 +213,9 @@ void CSettingsDlg::saveIni()
 
 	p_endpoint->m_fAutoAnswer = ui.IDS_AANSWERSTR->isChecked();
 	config.SetBoolean(AutoAnswerConfigKey, p_endpoint->m_fAutoAnswer);
+
+	p_endpoint->m_AutoMute = ui.ckbAutoMute->isChecked();
+	config.SetBoolean(AutoMuteConfigKey, p_endpoint->m_AutoMute);
 
 	config.SetString(RingSoundFileConfigKey, ui.IDS_RINGFSTR->text().toAscii().data());
 	

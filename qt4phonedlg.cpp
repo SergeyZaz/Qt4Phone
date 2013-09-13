@@ -68,7 +68,7 @@ QtPhoneDlg::QtPhoneDlg(QWidget *parent, Qt::WFlags flags)
 	m_pLblStat	= new QLabel();
 	ui.statusbar->addPermanentWidget(m_pLblStat);
 	
-	//ui.txtAddress->setText("192.168.111.203");
+	ui.txtAddress->setText("echo@192.168.111.99");
 	//ui.txtAddress->setText("192.168.1.103");
 
 	m_endpoint = new CMyPhoneEndPoint;
@@ -832,4 +832,20 @@ void QtPhoneDlg::openContacts()
 		ui.txtAddress->setText(name);
 		slot_OnCall();
 	}
+}
+	
+void QtPhoneDlg::showSlot()
+{
+	//делаем окно активным
+	if (isMinimized())
+		setWindowState(windowState() &  ~Qt::WindowMinimized | Qt::WindowActive);
+	else
+	{
+		show();
+		repaint();
+	}
+
+	activateWindow();
+
+	raise();
 }

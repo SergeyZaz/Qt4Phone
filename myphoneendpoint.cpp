@@ -131,6 +131,7 @@ bool CMyPhoneEndPoint::Initialise(QtPhoneDlg *dlg)
 		m_router = config.GetString(RouterConfigKey, m_router.AsString());
 	
 	m_fAutoAnswer = config.GetBoolean(AutoAnswerConfigKey, true);
+	m_AutoMute = config.GetBoolean(AutoMuteConfigKey, false);
 	
     QString alias, aliases;
 	aliases = QString((const char *)config.GetString(AliasConfigKey, ""));
@@ -265,24 +266,23 @@ PBoolean CMyPhoneEndPoint::OpenVideoChannel(H323Connection &connection, PBoolean
 	// Transmitter part
 		if(!autoStartTransmitVideo)
 			return FALSE;
-		
+puts("11111111111111111");		
 		PINDEX suffixPos;
-/**
-		int m_Quality = config.GetInteger(VideoQualityConfigKey,15);
-		//printf("Quality=%d\n", m_Quality);
-		codec.SetTxQualityLevel(m_Quality);
-		//codec.SetBackgroundFill(2);
+
+		codec.SetTxQualityLevel(config.GetInteger(VideoQualityConfigKey,15));
+		codec.SetBackgroundFill(2);
+puts("211111111111111111");		
+
 		int videoOutMaxBitRate = config.GetInteger(VideoOutMaxbandWidthKey, 320);
 		videoOutMaxBitRate = 1024 * PMAX(16, PMIN(10240, videoOutMaxBitRate));
 
 		H323Channel * lchannel = codec.GetLogicalChannel();
 		const H323Capability & capability = lchannel->GetCapability();
 		PString cname = capability.GetFormatName();
-		PINDEX suffixPos = cname.Find("H.263");
+		suffixPos = cname.Find("H.263");
 		if(suffixPos == P_MAX_INDEX) 
 			suffixPos = cname.Find("H.261");
-**/
-		//return H323EndPoint::OpenVideoChannel(connection, isEncoding, codec);
+puts("311111111111111111");		
 
 		int videoSize = config.GetInteger(VideoOutSizeConfigKey, 2);
 		int width=352, height=288;
@@ -304,41 +304,41 @@ PBoolean CMyPhoneEndPoint::OpenVideoChannel(H323Connection &connection, PBoolean
 			if(suffixPos == P_MAX_INDEX) { width = 1024; height = 768; break; }
 		case 4: //4CIF
 			width = 704; height = 576; break;
-		case 7: //SXGA
-			if(suffixPos == P_MAX_INDEX) { width = 1200; height = 1024; break; }
-		case 8: //16CIF
+		case 7: //HD 720
+			if(suffixPos == P_MAX_INDEX) { width = 1280; height = 720; break; }
+		case 8: //SXGA
+			if(suffixPos == P_MAX_INDEX) { width = 1280; height = 1024; break; }
+		case 9: //16CIF
 			width = 1408; height = 1152; break;
-		case 9: //UXGA
+		case 10: //UXGA
 			if(suffixPos == P_MAX_INDEX) { width = 1600; height = 1200; break; }
+		case 11: //HD 1080
+			if(suffixPos == P_MAX_INDEX) { width = 1920; height = 1080; break; }
 		default:
 			break;
 		}
+puts("411111111111111111");		
 		
-		//printf("width=%d, height=%d\n", width, height);
+		PTRACE(1, "Video device videoSize=" << videoSize << " width=" << width << " height=" << height);
 
-		codec.SetFrameSize(width, height);
-/**
+		codec.SetVideoSize(width, height);
 		width = codec.GetWidth(); 
 		height = codec.GetHeight();
-**/
-		//printf("width=%d, height=%d\n", width, height);
+puts("511111111111111111");		
+
+		PTRACE(1, "Accepted video device width=" << width << " height=" << height);
 
 		int curMBR = codec.GetMaxBitRate();
-		//printf("----------------- curMBR=%d, videoOutMaxBitRate=%d\n", curMBR, videoOutMaxBitRate);
-/**
-		if(curMBR > videoOutMaxBitRate) 
-			codec.SetMaxBitRate(videoOutMaxBitRate);
+		if(curMBR > videoOutMaxBitRate) codec.SetMaxBitRate(videoOutMaxBitRate);
 
+puts("611111111111111111");		
 		int videoFramesPS = config.GetInteger(VideoFPSKey, 10);
 		codec.SetGeneralCodecOption("Frame Rate",videoFramesPS);
-**/
+puts("711111111111111111");		
 		
-		//printf("Frame Rate=%d\n", videoFramesPS);
-		
-		
-#if PTLIB_MAJOR<=2 && PTLIB_MINOR<10
+//#if PTLIB_MAJOR<=2 && PTLIB_MINOR<10
 		codec.cacheMode = 1;
-#endif
+//#endif
 		//Create grabber.
 		bool NoDevice = false;
 		QString devSName(config.GetString(VideoDeviceConfigKey, "")); 
@@ -353,6 +353,7 @@ PBoolean CMyPhoneEndPoint::OpenVideoChannel(H323Connection &connection, PBoolean
 				NoDevice = true;
 		}
 		//printf("deviceName=%s\n", (const char*)deviceName);
+puts("811111111111111111");		
 
 		PVideoInputDevice * grabber = NULL;
 		if (deviceName.Find("fake") == 0) 
@@ -360,7 +361,11 @@ PBoolean CMyPhoneEndPoint::OpenVideoChannel(H323Connection &connection, PBoolean
 		else 
 			grabber = PVideoInputDevice::CreateDeviceByName(deviceName,VideoInputDriver);
 
-		bool rc1, rc = false;
+puts("911111111111111111");		
+
+
+////////////////////////////////////////////////////////////////////////////////
+				bool rc1, rc = false;
 		if (!NoDevice && grabber)
 		{
 /**
@@ -369,6 +374,7 @@ PBoolean CMyPhoneEndPoint::OpenVideoChannel(H323Connection &connection, PBoolean
 			//printf("grabber->SetColourFormatConverter = %d\n", (int)rc1);
 #endif
 **/
+puts("101111111111111111");		
 			rc = grabber->Open(deviceName, FALSE);
 /*
 				if(!rc)
@@ -380,23 +386,30 @@ PBoolean CMyPhoneEndPoint::OpenVideoChannel(H323Connection &connection, PBoolean
 					}
 				}
 */
+puts("121111111111111111");		
 			rc1 = grabber->SetColourFormatConverter("YUV420P");
 			//printf("grabber->SetColourFormatConverter = %d\n", (int)rc1);
 
+puts("131111111111111111");		
 			rc1 = grabber->SetFrameSize(width, height);
 			//printf("grabber->SetFrameSize = %d\n", (int)rc1);
 			
 			if(!rc)
 				rc = grabber->Open(deviceName, FALSE);
 
+puts("141111111111111111");		
 		}
 
-		if (NoDevice || !rc
-//			|| !grabber->SetColourFormatConverter("YUV420P") 
-//			|| !grabber->Open(deviceName, FALSE) 
-//			|| !grabber->SetFrameSize(width, height)
-			) 
+puts("151111111111111111");		
+		if (NoDevice || !rc) 
+////////////////////////////////////////////////////////////////////////////////
+
+//		if (NoDevice || !grabber->Open(deviceName, FALSE) ||
+//			!grabber->SetFrameSize(width, height) || 
+//			!grabber->SetColourFormatConverter("YUV420P") || 
+//			!grabber->SetVFlipState(localFlip))
 		{
+
 			if(!NoDevice)
 			{
 				QString msg = QString("ќЎ»Ѕ ј! Ќе могу открыть устройство: %1; канал: %2")
@@ -406,26 +419,29 @@ PBoolean CMyPhoneEndPoint::OpenVideoChannel(H323Connection &connection, PBoolean
 				PTRACE(1, "Failed to open or configure the video device \"" << deviceName << '"');
 			}
 
+puts("161111111111111111");		
 			if(grabber) 
 				delete grabber;
+puts("171111111111111111");		
 			grabber = PVideoInputDevice::CreateDevice("FakeVideo");
 			grabber->SetColourFormat("YUV420P");
 			grabber->SetVideoFormat(PVideoDevice::PAL);
 			grabber->SetFrameSize(width, height);
-			//grabber->SetVFlipState(localFlip);
+			grabber->SetVFlipState(localFlip);
 			grabber->SetChannel(4);
+puts("181111111111111111");		
 		}
-/**
+
+puts("191111111111111111");		
 		if(videoFramesPS >0 && videoFramesPS<30) 
 			grabber->SetFrameRate(videoFramesPS);
-**/
-		bool curVFlip = config.GetBoolean(VideoOutVFlipConfigKey, FALSE);
-		grabber->SetVFlipState(curVFlip);
 		
+puts("2011111111111111111");		
 		grabber->Start();
 
 		channel->AttachVideoReader(grabber);
 		displayDevice = PVideoOutputDevice::CreateDevice("NULLOutput");
+puts("211111111111111111");		
 	}
 	else
 	{
@@ -580,317 +596,337 @@ void CMyPhoneEndPoint::OnLogicalChannel(bool fConnect, const H323Channel & chann
 void CMyPhoneEndPoint::LoadCapabilities()
 {
 
-	bool sizeChange = FALSE;
+ BOOL sizeChange = FALSE;
 
-	capabilities.RemoveAll();
+ capabilities.RemoveAll();
+	
+// Add the codecs we know about
+ AddAllCapabilities(0, 0, "*"); 
 
-	// Add the codecs we know about
-	AddAllCapabilities(0, 0, "*"); 
+// ”дал€ю не поддерживаемые видео кодеки из реестра
+ PINDEX videoNum = 0;
+ for (;;)
+ {
+  PString key = psprintf("%u", ++videoNum);
+  PString name = config.GetString(VideoCodecsConfigSection, key, "");
+  if (name.IsEmpty()) break;
 
+  PINDEX suffixPos = name.Find(OnCodecSuffix);
+  if (suffixPos != P_MAX_INDEX) 
+   name.Delete(suffixPos, P_MAX_INDEX);
+  else 
+  {
+   suffixPos = name.Find(OffCodecSuffix);
+   name.Delete(suffixPos, P_MAX_INDEX);
+  }
 
-	// ”дал€ю не поддерживаемые видео кодеки из реестра
-	PINDEX videoNum = 0;
-	for (;;)
-	{
-		PString key = psprintf("%u", ++videoNum);
-		PString name = config.GetString(VideoCodecsConfigSection, key, "");
-		if (name.IsEmpty()) 
-			break;
+  int res = 0;
+  for (PINDEX i = 0; i < capabilities.GetSize(); i++)
+  {
+   if (capabilities[i].GetMainType() == H323Capability::e_Video)
+   {
+    if(capabilities[i].GetFormatName() == name)
+     { res = 1; break; }
+   }
+  }
+  if(res == 0) 
+  {
+   PINDEX j = videoNum; videoNum--;
+   for (;;)
+   {
+    PString key1 = psprintf("%u", ++j);
+    PString name1 = config.GetString(VideoCodecsConfigSection, key1, "");
+    if (name1.IsEmpty()) break;
 
-		PINDEX suffixPos = name.Find(OnCodecSuffix);
-		if (suffixPos != P_MAX_INDEX) 
-			name.Delete(suffixPos, P_MAX_INDEX);
-		else 
-		{
-			suffixPos = name.Find(OffCodecSuffix);
-			name.Delete(suffixPos, P_MAX_INDEX);
-		}
+    config.SetString(VideoCodecsConfigSection, psprintf("%u", j-2), name1);
+   }
+   config.DeleteKey(VideoCodecsConfigSection, psprintf("%u", j-1));
+  }
+ }
 
-		int res = 0;
-		for (PINDEX i = 0; i < capabilities.GetSize(); i++)
-		{
-			if (capabilities[i].GetMainType() == H323Capability::e_Video)
-			{
-				if(capabilities[i].GetFormatName() == name)
-				{ res = 1; break; }
-			}
-		}
-		if(res == 0) 
-		{
-			PINDEX j = videoNum; videoNum--;
-			for (;;)
-			{
-				PString key1 = psprintf("%u", ++j);
-				PString name1 = config.GetString(VideoCodecsConfigSection, key1, "");
-				if (name1.IsEmpty()) break;
+// добавл€ю новые видео кодеки если их нет в конфигурации
+ for (PINDEX i = 0; i < capabilities.GetSize(); i++)
+ {
+  if (capabilities[i].GetMainType() == H323Capability::e_Video)
+  {
+   PINDEX codecNum=0;
+   int res = 0;
+   int suffix = 0;
+   for (;;)
+   {
+    PString key = psprintf("%u", ++codecNum);
+    PString name = config.GetString(VideoCodecsConfigSection, key, "");
+    if (name.IsEmpty()) break;   
 
-				config.SetString(VideoCodecsConfigSection, psprintf("%u", j-2), name1);
-			}
-			config.DeleteKey(VideoCodecsConfigSection, psprintf("%u", j-1));
-		}
-	}
+    suffix = 0;
+    PINDEX suffixPos = name.Find(OnCodecSuffix);
+    if (suffixPos != P_MAX_INDEX)
+     name.Delete(suffixPos, P_MAX_INDEX);
+    else
+    {
+     suffix = 1;
+     suffixPos = name.Find(OffCodecSuffix);
+     name.Delete(suffixPos, P_MAX_INDEX);
+    }
+  
+    if(capabilities[i].GetFormatName() == name) { res = 1; break; }
+   }
+   if(res == 0)
+   {
+    config.SetString(VideoCodecsConfigSection,
+        psprintf("%u", codecNum),
+        capabilities[i].GetFormatName() + ((suffix==0)?OnCodecSuffix:OffCodecSuffix));
+   }
+  }
+ }
 
-	// добавл€ю новые видео кодеки если их нет в конфигурации
-	for (PINDEX i = 0; i < capabilities.GetSize(); i++)
-	{
-		if (capabilities[i].GetMainType() == H323Capability::e_Video)
-		{
-			PINDEX codecNum=0;
-			int res = 0;
-			int suffix = 0;
-			for (;;)
-			{
-				PString key = psprintf("%u", ++codecNum);
-				PString name = config.GetString(VideoCodecsConfigSection, key, "");
-				if (name.IsEmpty()) break;   
+ PINDEX audioNum = 0;
+ for (;;)
+ {
+  PString key = psprintf("%u", ++audioNum);
+  PString name = config.GetString(CodecsConfigSection, key, "");
+  if (name.IsEmpty()) break;
 
-				suffix = 0;
-				PINDEX suffixPos = name.Find(OnCodecSuffix);
-				if (suffixPos != P_MAX_INDEX)
-					name.Delete(suffixPos, P_MAX_INDEX);
-				else
-				{
-					suffix = 1;
-					suffixPos = name.Find(OffCodecSuffix);
-					name.Delete(suffixPos, P_MAX_INDEX);
-				}
+  PINDEX suffixPos = name.Find(OnCodecSuffix);
+  if (suffixPos != P_MAX_INDEX) 
+   name.Delete(suffixPos, P_MAX_INDEX);
+  else 
+  {
+   suffixPos = name.Find(OffCodecSuffix);
+   name.Delete(suffixPos, P_MAX_INDEX);
+  }
 
-				if(capabilities[i].GetFormatName() == name) { res = 1; break; }
-			}
-			if(res == 0)
-			{
-				config.SetString(VideoCodecsConfigSection,
-					psprintf("%u", codecNum),
-					capabilities[i].GetFormatName() + ((suffix==0)?OnCodecSuffix:OffCodecSuffix));
-			}
-		}
-	}
+  int res = 0;
+  for (PINDEX i = 0; i < capabilities.GetSize(); i++)
+  {
+   if (capabilities[i].GetMainType() == H323Capability::e_Audio)
+   {
+    if(capabilities[i].GetFormatName() == name)
+     { res = 1; break; }
+   }
+  }
+  if(res == 0) 
+  {
+   PINDEX j = audioNum; audioNum--;
+   for (;;)
+   {
+    PString key1 = psprintf("%u", ++j);
+    PString name1 = config.GetString(CodecsConfigSection, key1, "");
+    if (name1.IsEmpty()) break;
 
-	PINDEX audioNum = 0;
-	for (;;)
-	{
-		PString key = psprintf("%u", ++audioNum);
-		PString name = config.GetString(CodecsConfigSection, key, "");
-		if (name.IsEmpty()) break;
+    config.SetString(CodecsConfigSection, psprintf("%u", j-2), name1);
+   }
+   config.DeleteKey(CodecsConfigSection, psprintf("%u", j-1));
+  }
+ }
 
-		PINDEX suffixPos = name.Find(OnCodecSuffix);
-		if (suffixPos != P_MAX_INDEX) 
-			name.Delete(suffixPos, P_MAX_INDEX);
-		else 
-		{
-			suffixPos = name.Find(OffCodecSuffix);
-			name.Delete(suffixPos, P_MAX_INDEX);
-		}
+ for (PINDEX i = 0; i < capabilities.GetSize(); i++)
+ {
+  if (capabilities[i].GetMainType() == H323Capability::e_Audio)
+  {
+   PINDEX codecNum=0;
+   int res = 0;
+   int suffix = 0;
+   for (;;)
+   {
+    PString key = psprintf("%u", ++codecNum);
+    PString name = config.GetString(CodecsConfigSection, key, "");
+    if (name.IsEmpty()) break;   
 
-		int res = 0;
-		for (PINDEX i = 0; i < capabilities.GetSize(); i++)
-		{
-			if (capabilities[i].GetMainType() == H323Capability::e_Audio)
-			{
-				if(capabilities[i].GetFormatName() == name)
-				{ res = 1; break; }
-			}
-		}
-		if(res == 0) 
-		{
-			PINDEX j = audioNum; audioNum--;
-			for (;;)
-			{
-				PString key1 = psprintf("%u", ++j);
-				PString name1 = config.GetString(CodecsConfigSection, key1, "");
-				if (name1.IsEmpty()) break;
+    suffix = 0;
+    PINDEX suffixPos = name.Find(OnCodecSuffix);
+    if (suffixPos != P_MAX_INDEX)
+     name.Delete(suffixPos, P_MAX_INDEX);
+    else
+    {
+     suffix = 1;
+     suffixPos = name.Find(OffCodecSuffix);
+     name.Delete(suffixPos, P_MAX_INDEX);
+    }
+  
+    if(capabilities[i].GetFormatName() == name) { res = 1; break; }
+   }
+   if(res == 0)
+   {
+    config.SetString(CodecsConfigSection,
+        psprintf("%u", codecNum),
+        capabilities[i].GetFormatName() + ((suffix==0)?OnCodecSuffix:OffCodecSuffix));
+   }
+  }
+ }
 
-				config.SetString(CodecsConfigSection, psprintf("%u", j-2), name1);
-			}
-			config.DeleteKey(CodecsConfigSection, psprintf("%u", j-1));
-		}
-	}
+// Add all the UserInput capabilities
+ AddAllUserInputCapabilities(0, 1);
 
-	for (PINDEX i = 0; i < capabilities.GetSize(); i++)
+ int videoSizeRx = config.GetInteger(VideoInSizeConfigKey, 2);
+ int videoSizeTx = config.GetInteger(VideoOutSizeConfigKey, 2);
+
+ RemoveCapability(H323Capability::e_ExtendVideo);
+
+ autoStartTransmitVideo = config.GetBoolean(AutoTransmitVideoConfigKey, TRUE);
+ autoStartReceiveVideo = config.GetBoolean(AutoReceiveVideoConfigKey, TRUE);
+	
+ localVideo = config.GetBoolean(VideoLocalConfigKey, FALSE);
+ localFlip = config.GetBoolean(VideoFlipLocalConfigKey, FALSE);
+	
+ int videoInMaxBitRate = config.GetInteger(VideoInMaxbandWidthKey, 320);
+ videoInMaxBitRate = 1024 * PMAX(16, PMIN(10240, videoInMaxBitRate));
+
+// changing audio codecs
+ PStringArray enabledCodecs;
+ PINDEX codecNum = 0;
+ for (;;) 
+ {
+  PString key = psprintf("%u", ++codecNum);
+  PString name = config.GetString(CodecsConfigSection, key, "");
+  if (name.IsEmpty()) break;
+		
+  PINDEX suffixPos = name.Find(OffCodecSuffix);
+  if (suffixPos != P_MAX_INDEX) 
+  {
+   capabilities.Remove(name(0, suffixPos-1));
+   continue;
+  }
+		
+  suffixPos = name.Find(OnCodecSuffix);
+  if (suffixPos != P_MAX_INDEX)	name.Delete(suffixPos, P_MAX_INDEX);
+  enabledCodecs.AppendString(name);
+ }
+
+ codecNum = 0;
+ for (;;) 
+ {
+  PString key = psprintf("%u", ++codecNum);
+  PString name = config.GetString(VideoCodecsConfigSection, key, "");
+  if (name.IsEmpty()) break;
+ }
+
+ int tvNum = 0;
+// if(tvCaps==NULL)  this generates error in free
+ tvCaps = (char **)calloc(codecNum+1,sizeof(char *));
+// while(tvCaps[tvNum]!=NULL) { free(tvCaps[tvNum]); tvCaps[tvNum]=NULL; tvNum++; }
+
+ tvNum = 0;
+ codecNum = 0;
+ for (;;) 
+ {
+  PString key = psprintf("%u", ++codecNum);
+  PString name = config.GetString(VideoCodecsConfigSection, key, "");
+  if (name.IsEmpty()) break;
+
+// удаление отключенных кодеков		
+  PINDEX suffixPos = name.Find(OffCodecSuffix);
+  if (suffixPos != P_MAX_INDEX) 
+  {
+   capabilities.Remove(name(0, suffixPos-1)); continue;
+  }
+// удаление суффикса on из имени кодека
+  suffixPos = name.Find(OnCodecSuffix);
+  if (suffixPos != P_MAX_INDEX)	name.Delete(suffixPos, P_MAX_INDEX);
+
+// проверка кодека на соответствие размеру принимаемой картинки
+// (меньше можно, больше нельз€) и удаление из списка локальных кодеков
+  suffixPos = P_MAX_INDEX;
+  switch(videoSizeRx)
+  {
+   case 0: //QCIF
+    suffixPos = name.Find("-CIF");   if(suffixPos != P_MAX_INDEX) break;
+   case 1: //QVGA
+   case 2: //CIF
+    suffixPos = name.Find("-4CIF");  if(suffixPos != P_MAX_INDEX) break;
+    suffixPos = name.Find("-480P");    if(suffixPos != P_MAX_INDEX) break;
+   case 3: //VGA
+   case 4: //4CIF
+    suffixPos = name.Find("-SD");    if(suffixPos != P_MAX_INDEX) break;
+   case 5: //SVGA
+    suffixPos = name.Find("-720P");    if(suffixPos != P_MAX_INDEX) break;
+   case 6: //XVGA
+    suffixPos = name.Find("-HD");    if(suffixPos != P_MAX_INDEX) break;
+    suffixPos = name.Find("-16CIF"); if(suffixPos != P_MAX_INDEX) break;
+   case 7: //SXGA
+    suffixPos = name.Find("-FHD"); if(suffixPos != P_MAX_INDEX) break;
+    suffixPos = name.Find("-16CIF"); if(suffixPos != P_MAX_INDEX) break;
+    suffixPos = name.Find("-1080P"); if(suffixPos != P_MAX_INDEX) break;
+   case 8: //16CIF
+   default:
+    break;
+  }
+  if(suffixPos == P_MAX_INDEX) enabledCodecs.AppendString(name);
+  else capabilities.Remove(name);
+
+// проверка кодека на соответствие размеру отправл€емой картинки
+// (меньше можно, больше нельз€) и создание списка допустимых кодеков
+  suffixPos = P_MAX_INDEX;
+  switch(videoSizeTx)
+  {
+   case 0: //QCIF
+    suffixPos = name.Find("-CIF");   if(suffixPos != P_MAX_INDEX) break;
+   case 1: //QVGA
+   case 2: //CIF
+    suffixPos = name.Find("-4CIF");  if(suffixPos != P_MAX_INDEX) break;
+    suffixPos = name.Find("-480P");    if(suffixPos != P_MAX_INDEX) break;
+   case 3: //VGA
+   case 4: //4CIF
+    suffixPos = name.Find("-SD");    if(suffixPos != P_MAX_INDEX) break;
+   case 5: //SVGA
+   case 6: //XVGA
+    suffixPos = name.Find("-HD");    if(suffixPos != P_MAX_INDEX) break;
+   case 7: //HD 720
+    suffixPos = name.Find("-720P");    if(suffixPos != P_MAX_INDEX) break;
+   case 8: //SXGA
+    suffixPos = name.Find("-16CIF"); if(suffixPos != P_MAX_INDEX) break;
+    suffixPos = name.Find("-FHD"); if(suffixPos != P_MAX_INDEX) break;
+    suffixPos = name.Find("-1080P"); if(suffixPos != P_MAX_INDEX) break;
+   case 9: //16CIF
+   default:
+    break;
+  }
+  if(suffixPos == P_MAX_INDEX) // добавл€ю в список допустимых
+  {
+   const char *p2pstr=name;
+   tvCaps[tvNum]=strdup(p2pstr);
+   tvNum++;
+  }
+ }
+
+// Reorder the codecs we have
+ capabilities.Reorder(enabledCodecs);
+
+ for (PINDEX i = 0; i < capabilities.GetSize(); i++) 
+ {
+  if (capabilities[i].GetMainType() == H323Capability::e_Video)
+  {
+   capabilities[i].SetMediaFormatOptionInteger(OpalVideoFormat::MaxBitRateOption, videoInMaxBitRate);
+   if((capabilities[i].GetFormatName().Find("H.264")!=P_MAX_INDEX) || (capabilities[i].GetFormatName().Find("VP8-")==0))
+   {
+
+    H323GenericVideoCapability *h264cap = (H323GenericVideoCapability *) &capabilities[i];
+    h264cap->SetMaxBitRate(videoInMaxBitRate/100);
+   }
+  }
+ }
+
+/*	
+	PINDEX audioNum = 1;
+	PINDEX videoNum = 1;
+	for (PINDEX i = 0; i < capabilities.GetSize(); i++) 
 	{
 		if (capabilities[i].GetMainType() == H323Capability::e_Audio)
 		{
-			PINDEX codecNum=0;
-			int res = 0;
-			int suffix = 0;
-			for (;;)
-			{
-				PString key = psprintf("%u", ++codecNum);
-				PString name = config.GetString(CodecsConfigSection, key, "");
-				if (name.IsEmpty()) break;   
-
-				suffix = 0;
-				PINDEX suffixPos = name.Find(OnCodecSuffix);
-				if (suffixPos != P_MAX_INDEX)
-					name.Delete(suffixPos, P_MAX_INDEX);
-				else
-				{
-					suffix = 1;
-					suffixPos = name.Find(OffCodecSuffix);
-					name.Delete(suffixPos, P_MAX_INDEX);
-				}
-
-				if(capabilities[i].GetFormatName() == name) { res = 1; break; }
-			}
-			if(res == 0)
-			{
-				config.SetString(CodecsConfigSection,
-					psprintf("%u", codecNum),
-					capabilities[i].GetFormatName() + ((suffix==0)?OnCodecSuffix:OffCodecSuffix));
-			}
+			config.SetString(CodecsConfigSection,
+				psprintf("%u", audioNum++),
+				capabilities[i].GetFormatName() + OnCodecSuffix);
+		} 
+		else if (capabilities[i].GetMainType() == H323Capability::e_Video)
+		{
+			config.SetString(VideoCodecsConfigSection,
+				psprintf("%u", videoNum++),
+				capabilities[i].GetFormatName() + OnCodecSuffix);
 		}
 	}
+*/
 
-	// Add all the UserInput capabilities
-	AddAllUserInputCapabilities(0, 1);
-
-	int videoSizeRx = config.GetInteger(VideoInSizeConfigKey, 2);
-	int videoSizeTx = config.GetInteger(VideoOutSizeConfigKey, 2);
-
-	RemoveCapability(H323Capability::e_ExtendVideo);
-
-	autoStartTransmitVideo = config.GetBoolean(AutoTransmitVideoConfigKey, TRUE);
-	autoStartReceiveVideo = config.GetBoolean(AutoReceiveVideoConfigKey, TRUE);
-
-	localVideo = config.GetBoolean(VideoLocalConfigKey, FALSE);
-	localFlip = config.GetBoolean(VideoFlipLocalConfigKey, FALSE);
-
-	int videoInMaxBitRate = config.GetInteger(VideoInMaxbandWidthKey, 320);
-	videoInMaxBitRate = 1024 * PMAX(16, PMIN(10240, videoInMaxBitRate));
-
-	// changing audio codecs
-	PStringArray enabledCodecs;
-	PINDEX codecNum = 0;
-	for (;;) 
-	{
-		PString key = psprintf("%u", ++codecNum);
-		PString name = config.GetString(CodecsConfigSection, key, "");
-		if (name.IsEmpty()) break;
-
-		PINDEX suffixPos = name.Find(OffCodecSuffix);
-		if (suffixPos != P_MAX_INDEX) 
-		{
-			capabilities.Remove(name(0, suffixPos-1));
-			continue;
-		}
-
-		suffixPos = name.Find(OnCodecSuffix);
-		if (suffixPos != P_MAX_INDEX)	name.Delete(suffixPos, P_MAX_INDEX);
-		enabledCodecs.AppendString(name);
-	}
-
-	codecNum = 0;
-	for (;;) 
-	{
-		PString key = psprintf("%u", ++codecNum);
-		PString name = config.GetString(VideoCodecsConfigSection, key, "");
-		if (name.IsEmpty()) break;
-	}
-
-	//tvCaps = (char **)calloc(codecNum+1,sizeof(char *));
-
-	int tvNum = 0;
-	codecNum = 0;
-	for (;;) 
-	{
-		PString key = psprintf("%u", ++codecNum);
-		PString name = config.GetString(VideoCodecsConfigSection, key, "");
-		if (name.IsEmpty()) break;
-
-		// удаление отключенных кодеков		
-		PINDEX suffixPos = name.Find(OffCodecSuffix);
-		if (suffixPos != P_MAX_INDEX) 
-		{
-			capabilities.Remove(name(0, suffixPos-1)); continue;
-		}
-		// удаление суффикса on из имени кодека
-		suffixPos = name.Find(OnCodecSuffix);
-		if (suffixPos != P_MAX_INDEX)	
-			name.Delete(suffixPos, P_MAX_INDEX);
-
-		// проверка кодека на соответствие размеру принимаемой картинки
-		// (меньше можно, больше нельз€) и удаление из списка локальных кодеков
-		suffixPos = P_MAX_INDEX;
-		switch(videoSizeRx)
-		{
-		case 0: //QCIF
-			suffixPos = name.Find("-CIF");   if(suffixPos != P_MAX_INDEX) break;
-		case 1: //QVGA
-		case 2: //CIF
-			suffixPos = name.Find("-4CIF");  if(suffixPos != P_MAX_INDEX) break;
-		case 3: //VGA
-		case 4: //4CIF
-			suffixPos = name.Find("-SD");    if(suffixPos != P_MAX_INDEX) break;
-		case 5: //SVGA
-		case 6: //XVGA
-			suffixPos = name.Find("-HD");    if(suffixPos != P_MAX_INDEX) break;
-			suffixPos = name.Find("-16CIF"); if(suffixPos != P_MAX_INDEX) break;
-		case 7: //SXGA
-			suffixPos = name.Find("-FHD"); if(suffixPos != P_MAX_INDEX) break;
-		case 8: //16CIF
-		default:
-			break;
-		}
-		if(suffixPos == P_MAX_INDEX) 
-			enabledCodecs.AppendString(name);
-		else 
-			capabilities.Remove(name);
-
-		// проверка кодека на соответствие размеру отправл€емой картинки
-		// (меньше можно, больше нельз€) и создание списка допустимых кодеков
-		suffixPos = P_MAX_INDEX;
-		switch(videoSizeTx)
-		{
-		case 0: //QCIF
-			suffixPos = name.Find("-CIF");   if(suffixPos != P_MAX_INDEX) break;
-		case 1: //QVGA
-		case 2: //CIF
-			suffixPos = name.Find("-4CIF");  if(suffixPos != P_MAX_INDEX) break;
-		case 3: //VGA
-		case 4: //4CIF
-			suffixPos = name.Find("-SD");    if(suffixPos != P_MAX_INDEX) break;
-		case 5: //SVGA
-		case 6: //XVGA
-			suffixPos = name.Find("-HD");    if(suffixPos != P_MAX_INDEX) break;
-		case 7: //SXGA
-			suffixPos = name.Find("-16CIF"); if(suffixPos != P_MAX_INDEX) break;
-			suffixPos = name.Find("-FHD"); if(suffixPos != P_MAX_INDEX) break;
-		case 8: //16CIF
-		default:
-			break;
-		}
-		if(suffixPos == P_MAX_INDEX) // добавл€ю в список допустимых
-		{
-			const char *p2pstr=name;
-			//tvCaps[tvNum]=strdup(p2pstr);
-			tvNum++;
-		}
-	}
-
-	// Reorder the codecs we have
-	capabilities.Reorder(enabledCodecs);
-
-	for (PINDEX i = 0; i < capabilities.GetSize(); i++) 
-	{
-		if (capabilities[i].GetMainType() == H323Capability::e_Video)
-		{
-			// это вли€ет на качество получаемой картинки!!!
-			//capabilities[i].SetMediaFormatOptionInteger(OpalVideoFormat::MaxBitRateOption, videoInMaxBitRate);
-			//printf("capabilities[i].SetMediaFormatOptionInteger=%d\n", videoInMaxBitRate);
-			if(capabilities[i].GetFormatName().Find("H.264")!=P_MAX_INDEX)
-			{
-
-				H323GenericVideoCapability *h264cap = (H323GenericVideoCapability *) &capabilities[i];
-				//h264cap->SetMaxBitRate(videoInMaxBitRate/100);
-				printf("--------------------h264cap->SetMaxBitRate=%d\n", videoInMaxBitRate);
-			}
-		}
-	}
-
-
-	FindGatekeeper();
-
-	PTRACE(1, "QtPhone\tCapability Table:\n" << setprecision(4) << capabilities);
+	PTRACE(1, "MyPhone\tCapability Table:\n" << setprecision(4) << capabilities);
 }
 /*
 void H323Capability::SetMediaFormatOptionInteger(const PString &name, int val)

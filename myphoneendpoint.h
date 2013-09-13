@@ -67,6 +67,7 @@ public:
 
 	bool m_fSilenceOn;
 	bool m_fAutoAnswer;
+	bool m_AutoMute;
 	bool m_fNoFastStart;
 	bool m_fDoH245Tunnelling;
 	bool m_fDtmfAsString;

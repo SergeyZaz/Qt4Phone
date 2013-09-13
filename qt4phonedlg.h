@@ -7,9 +7,26 @@
 #include <QMenu>
 #include <QComboBox>
 #include <QtGui/QMainWindow>
+#include <QThread>
 #include "ui_qt4phone.h"
 #include "myphoneendpoint.h"
 #include "global.h"
+
+class WhileThread: public QThread
+{
+	Q_OBJECT
+public:
+	WhileThread()
+	{
+	}
+	~WhileThread()
+	{
+	}
+	void run();
+
+signals:
+	void signalShow();
+};
 
 class QtPhoneDlg : public QMainWindow
 {
@@ -96,6 +113,7 @@ public slots:
 	void slot_Close();
 	void about();
 	void openContacts();
+	void showSlot();
 
 signals:
 	void signal_SetLevelVolume(unsigned int val);
