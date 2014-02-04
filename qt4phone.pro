@@ -23,8 +23,8 @@ INCLUDEPATH += /usr/local/include/ptlib \
 		.
 
 LIBS += -L/usr/local/lib \
-	-lpt \
-	-lopenh323
+	-lpt_linux_x86_64_r \
+	-lh323_linux_x86_64_r
 
 QT += xml
 

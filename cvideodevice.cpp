@@ -103,11 +103,13 @@ PBoolean CVideoOutputDevice::SetColourFormat(
 PBoolean CVideoOutputDevice::FrameComplete()
 {
 
-	unsigned int width, height;//, size;
+	unsigned int width = 0, height = 0;
+	//width = GetFrameWidth();
+	//height = GetFrameHeight();
 	if(!m_doLocalVideoPnP || !GetFrameSize(width, height))
 		return FALSE;
 
-//	printf("CVideoOutputDevice::FrameComplete(%d, %d)\n", width, height);
+	//printf("CVideoOutputDevice::FrameComplete(%d, %d)\n", width, height);
    
 	//size = frameStore.GetSize();
 

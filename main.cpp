@@ -5,23 +5,29 @@
 #include <QObject>
 #include <QSystemSemaphore>
 
-QSystemSemaphore *sem;
+QSystemSemaphore *sem=NULL;
 
+
+#ifdef WIN32
+	#define PROGRAMM_NAME L"Qt4Phone"
+#else
+	#define PROGRAMM_NAME "Qt4Phone"
+#endif
+/*
 HANDLE OneCopyApplicationWork = NULL;
-
 bool CheckOneCopyApplicationWork()
 {
-	OneCopyApplicationWork = OpenSemaphore(SEMAPHORE_ALL_ACCESS, false, "Qt4Phone");
+	OneCopyApplicationWork = OpenSemaphore(SEMAPHORE_ALL_ACCESS, false, PROGRAMM_NAME);
 	if (OneCopyApplicationWork != NULL)
 	{
 		CloseHandle(OneCopyApplicationWork);
 		OneCopyApplicationWork=NULL;
 		return false;
 	}
-	OneCopyApplicationWork = CreateSemaphore(NULL, false, 1, "Qt4Phone");
+	OneCopyApplicationWork = CreateSemaphore(NULL, false, 1, PROGRAMM_NAME);
 	return true;
 } 
-
+*/
 void WhileThread::run()
 {
 	while(isRunning())
@@ -75,10 +81,18 @@ void Qt4Phone::Main()
 	QTextCodec::setCodecForTr(QTextCodec::codecForName("windows-1251"));
 	QTextCodec::setCodecForCStrings(QTextCodec::codecForName("windows-1251"));  
 
+#ifdef _DEBUG
+	fCreateConsole = true;
+#endif
+
 #ifdef _WIN32
 	if(fCreateConsole)
 	{
+	#ifdef WIN32
+		WCHAR title[256];
+	#else
 		char title[256];
+	#endif
 		if(GetConsoleTitle(title,sizeof(title))==0) 
 		{
 			AllocConsole();
@@ -93,7 +107,7 @@ void Qt4Phone::Main()
 #endif
 
 	QApplication a(argCount, (char**)argV);
-
+/*
 	sem = new QSystemSemaphore("Qt4PhoneWhile", 0, QSystemSemaphore::Open);
 	if(!CheckOneCopyApplicationWork())
 	{
@@ -102,7 +116,7 @@ void Qt4Phone::Main()
         //                      QObject::tr("Невозможно загрузить приложение.\nПриложение уже запущено!"));
         return;
 	} 
-
+*/
 	QtPhoneDlg *w = new QtPhoneDlg;
 
 	if (QSystemTrayIcon::isSystemTrayAvailable())
