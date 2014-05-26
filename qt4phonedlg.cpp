@@ -639,12 +639,12 @@ void QtPhoneDlg::SendUserInput(const QString &strusermsg)
 		return;
 	
 //puts("2---------------");
-	connection->SendUserInput(PString(strusermsg.toAscii().data()));
+	connection->SendUserInput(PString(strusermsg.toUtf8().data()));
 //puts("3---------------");
 	connection->Unlock();
 
 //puts("4---------------");
-	QString msg = QString("-> Вы сказали: ""%1""").arg(strusermsg);
+	QString msg = QString("-> %1").arg(strusermsg);
 	slot_OutputUserMsg(msg);
 }
 

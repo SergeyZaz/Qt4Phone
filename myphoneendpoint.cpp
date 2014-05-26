@@ -258,7 +258,7 @@ PBoolean CMyPhoneEndPoint::OpenVideoChannel(H323Connection &connection,
 	PBoolean isEncoding, 
 	H323VideoCodec &codec)
 {
-	puts("!!!! CMyPhoneEndPoint::OpenVideoChannel !!!!");
+	puts("================ CMyPhoneEndPoint::OpenVideoChannel !!!!");
 
 	PVideoChannel   *channel = new PVideoChannel;
 	PVideoDevice *displayDevice = NULL;
@@ -356,13 +356,41 @@ PBoolean CMyPhoneEndPoint::OpenVideoChannel(H323Connection &connection,
 		if (deviceName.Find("fake") == 0) NoDevice = true;
 		//  else if (deviceName.Find("screen") == 0) grabber = PVideoInputDevice::CreateDevice("ScreenVideo");
 		else grabber = PVideoInputDevice::CreateDeviceByName(deviceName,VideoInputDriver);
+if(!grabber)
+	puts("!!!! no grabber !!!!");
 
-		if (grabber && (NoDevice || 
+printf("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ NoDevice = %d!!!!\n", (int)NoDevice);
+
+if(grabber)
+{
+int rc1 = grabber->Open(deviceName, FALSE);
+printf("!!!! grabber->Open = %d!!!!\n", rc1);
+
+//int rc0 = grabber->SetFrameSize(width, height);
+//printf("!!!! grabber->SetFrameSize(width, height) = %d!!!!\n", rc0);
+
+int rc2 = grabber->SetColourFormatConverter("YUV420P");
+printf("!!!! grabber->SetColourFormatConverter = %d!!!!\n", rc2);
+
+int rc3 = grabber->SetFrameSizeConverter(width, height);
+printf("!!!! grabber->SetFrameSizeConverter = %d!!!!\n", rc3);
+
+int rc4 = grabber->SetVFlipState(localFlip);
+printf("!!!! grabber->SetVFlipState = %d!!!!\n", rc4);
+
+
+//if(!rc1 || !rc2 || !rc3 || !rc4)
+//{
+//    int rc5 = grabber->Open(deviceName, FALSE);
+//    printf("!!!! grabber->Open = %d!!!!\n", rc5);
+//}
+
+		if (NoDevice || !rc1 || !rc2 || !rc3 || !rc4)
 			//!grabber->SetFrameSize(width, height) ||
-			!grabber->Open(deviceName, FALSE) ||
-			!grabber->SetColourFormatConverter("YUV420P") || 
-			!grabber->SetFrameSizeConverter(width, height)||//, PVideoFrameInfo::eScale) ||
-			!grabber->SetVFlipState(localFlip)))
+			//!grabber->Open(deviceName, FALSE) ||
+			//!grabber->SetColourFormatConverter("YUV420P") || 
+			//!grabber->SetFrameSizeConverter(width, height)||//, PVideoFrameInfo::eScale) ||
+			//!grabber->SetVFlipState(localFlip)))
 		{
 			if(!NoDevice)
 			{
@@ -372,8 +400,13 @@ PBoolean CMyPhoneEndPoint::OpenVideoChannel(H323Connection &connection,
 				emit signal_OutputMsg(msg);
 				PTRACE(1, "Failed to open or configure the video device \"" << deviceName << '"');
 			}
-
 			if(grabber) delete grabber;
+			grabber = NULL;
+		}
+}
+			
+if(!grabber)
+{		
 			grabber = PVideoInputDevice::CreateDevice("FakeVideo");
 			grabber->SetColourFormat("YUV420P");
 			grabber->SetVideoFormat(PVideoDevice::PAL);
@@ -381,7 +414,7 @@ PBoolean CMyPhoneEndPoint::OpenVideoChannel(H323Connection &connection,
 			grabber->SetVFlipState(localFlip);
 			//			grabber->SetChannel(4);
 			grabber->SetChannel((config.GetInteger(VideoSourceConfigKey, -1)+5)%7);
-		}
+}
 
 		if(videoFramesPS >0 && videoFramesPS<30) 
 			grabber->SetFrameRate(videoFramesPS);
@@ -427,6 +460,8 @@ PBoolean CMyPhoneEndPoint::OnStartLogicalChannel(H323Connection &, H323Channel &
 void CMyPhoneEndPoint::OnClosedLogicalChannel(H323Connection &connection, const H323Channel &channel)
 {
 	OnLogicalChannel(false, channel, "Прекратили отправлять %1 данные %2.", "Прекратили получать %1 данные %2.");
+	
+	emit signal_OnConnectionCleared(m_dialog->FindContactName(connection));
 }
 
 void CMyPhoneEndPoint::OnRTPStatistics(const H323Connection &connection, const RTP_Session &session) const
@@ -1007,10 +1042,12 @@ CMyPhoneConnection::CMyPhoneConnection(
 		   QtPhoneDlg* wnd, CMyPhoneEndPoint & ep, unsigned callReference, unsigned options)
 		   : H323Connection(ep, callReference, options), endpoint(ep), m_dialog(wnd)
 {
+	puts("CMyPhoneConnection::CMyPhoneConnection");
 }
 
 PBoolean CMyPhoneConnection::OnAlerting(const H323SignalPDU &, const PString & user)
 {
+	puts("CMyPhoneConnection::OnAlerting");
 	QString msg = QString("Вызываем %1...").arg(m_dialog->FindContactName(*this));
 	endpoint.OutputMsg(msg);
 	return TRUE;
@@ -1018,7 +1055,8 @@ PBoolean CMyPhoneConnection::OnAlerting(const H323SignalPDU &, const PString & u
 
 void CMyPhoneConnection::OnUserInputString(const PString & value)
 {
-	QString msg = QString("<-%1: ""%2""").arg(m_dialog->FindContactName(*this)).arg((const char*)value);
+	puts("CMyPhoneConnection::OnUserInputString");
+	QString msg = QString("<-%1: %2").arg(m_dialog->FindContactName(*this)).arg(QString::fromUtf8((const char*)value));
 	endpoint.OutputUsrMsg(msg);
 } 
 /*
