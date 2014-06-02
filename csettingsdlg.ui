@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>389</width>
-    <height>353</height>
+    <height>416</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -632,13 +632,59 @@
          </property>
          <layout class="QGridLayout" name="gridLayout_6">
           <property name="margin">
-           <number>1</number>
+           <number>2</number>
           </property>
           <property name="spacing">
-           <number>1</number>
+           <number>2</number>
           </property>
           <item row="0" column="0" rowspan="5">
            <widget class="QListWidget" name="IDS_CADECSSTR"/>
+          </item>
+          <item row="0" column="1" colspan="2">
+           <widget class="QPushButton" name="IDS_CSUPSTRALL">
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>21</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>наверх</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1" colspan="2">
+           <widget class="QPushButton" name="IDS_CSUPSTR">
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>21</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>вверх</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QCheckBox" name="IDS_CSENBLSTR">
+            <property name="text">
+             <string>Вкл</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="2">
+           <spacer name="verticalSpacer_2">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>31</width>
+              <height>57</height>
+             </size>
+            </property>
+           </spacer>
           </item>
           <item row="3" column="1" colspan="2">
            <widget class="QPushButton" name="IDS_CSDOWNSTR">
@@ -653,35 +699,8 @@
             </property>
            </widget>
           </item>
-          <item row="4" column="2" rowspan="2">
-           <spacer name="verticalSpacer_2">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>31</width>
-              <height>57</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="5" column="0">
-           <widget class="QCheckBox" name="IDS_CHKAES">
-            <property name="text">
-             <string>AES включено</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QCheckBox" name="IDS_CSENBLSTR">
-            <property name="text">
-             <string>Вкл</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1" rowspan="2" colspan="2">
-           <widget class="QPushButton" name="IDS_CSUPSTR">
+          <item row="4" column="1" colspan="2">
+           <widget class="QPushButton" name="IDS_CSDOWNSTRALL">
             <property name="maximumSize">
              <size>
               <width>16777215</width>
@@ -689,7 +708,14 @@
              </size>
             </property>
             <property name="text">
-             <string>вверх</string>
+             <string>в самый вниз</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0">
+           <widget class="QCheckBox" name="IDS_CHKAES">
+            <property name="text">
+             <string>AES включено</string>
             </property>
            </widget>
           </item>
@@ -876,13 +902,59 @@
          </property>
          <layout class="QGridLayout" name="gridLayout_8">
           <property name="margin">
-           <number>1</number>
+           <number>2</number>
           </property>
           <property name="spacing">
-           <number>1</number>
+           <number>2</number>
           </property>
           <item row="0" column="0" rowspan="5">
            <widget class="QListWidget" name="IDS_VCADECSSTR"/>
+          </item>
+          <item row="0" column="1" colspan="2">
+           <widget class="QPushButton" name="IDS_VCSUPSTRALL">
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>21</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>наверх</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1" colspan="2">
+           <widget class="QPushButton" name="IDS_VCSUPSTR">
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>21</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>вверх</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QCheckBox" name="IDS_VCSENBLSTR">
+            <property name="text">
+             <string>Вкл</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="2">
+           <spacer name="verticalSpacer_3">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>31</width>
+              <height>46</height>
+             </size>
+            </property>
+           </spacer>
           </item>
           <item row="3" column="1" colspan="2">
            <widget class="QPushButton" name="IDS_VCSDOWNSTR">
@@ -897,36 +969,10 @@
             </property>
            </widget>
           </item>
-          <item row="4" column="2" rowspan="2">
-           <spacer name="verticalSpacer_3">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>31</width>
-              <height>46</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="2" column="1">
-           <widget class="QCheckBox" name="IDS_VCSENBLSTR">
+          <item row="4" column="1" colspan="2">
+           <widget class="QPushButton" name="IDS_VCSDOWNSTRALL">
             <property name="text">
-             <string>Вкл</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1" rowspan="2" colspan="2">
-           <widget class="QPushButton" name="IDS_VCSUPSTR">
-            <property name="maximumSize">
-             <size>
-              <width>16777215</width>
-              <height>21</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>вверх</string>
+             <string>в самый низ</string>
             </property>
            </widget>
           </item>

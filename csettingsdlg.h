@@ -26,9 +26,13 @@ public slots:
 	void slot_ComboBoxChange(int);
 	void slot_ApplyChange();
 	void slot_VCodecUp();
+	void slot_VCodecUpAll();
 	void slot_VCodecDown();
+	void slot_VCodecDownAll();
 	void slot_ACodecUp();
+	void slot_ACodecUpAll();
 	void slot_ACodecDown();
+	void slot_ACodecDownAll();
 	void slot_VCodecUse(bool);
 	void slot_ACodecUse(bool);
 	void slot_VItemChanged(QListWidgetItem *item, QListWidgetItem*);

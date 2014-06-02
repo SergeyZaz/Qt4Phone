@@ -33,9 +33,13 @@ CSettingsDlg::CSettingsDlg(CMyPhoneEndPoint *m_endpoint, QWidget *parent)
 	connect(ui.IDS_OUTDEVSTR, SIGNAL(currentIndexChanged(int)), this, SLOT(slot_ComboBoxChange(int)));
 	connect(ui.buttonBox, SIGNAL(accepted()), this, SLOT(slot_ApplyChange()));
 	connect(ui.IDS_VCSUPSTR, SIGNAL(clicked()), this, SLOT(slot_VCodecUp()));
+	connect(ui.IDS_VCSUPSTRALL, SIGNAL(clicked()), this, SLOT(slot_VCodecUpAll()));
 	connect(ui.IDS_VCSDOWNSTR, SIGNAL(clicked()), this, SLOT(slot_VCodecDown()));
+	connect(ui.IDS_VCSDOWNSTRALL, SIGNAL(clicked()), this, SLOT(slot_VCodecDownAll()));
 	connect(ui.IDS_CSUPSTR, SIGNAL(clicked()), this, SLOT(slot_ACodecUp()));
+	connect(ui.IDS_CSUPSTRALL, SIGNAL(clicked()), this, SLOT(slot_ACodecUpAll()));
 	connect(ui.IDS_CSDOWNSTR, SIGNAL(clicked()), this, SLOT(slot_ACodecDown()));
+	connect(ui.IDS_CSDOWNSTRALL, SIGNAL(clicked()), this, SLOT(slot_ACodecDownAll()));
 	connect(ui.IDS_VCSENBLSTR, SIGNAL(clicked(bool)), this, SLOT(slot_VCodecUse(bool)));
 	connect(ui.IDS_CSENBLSTR, SIGNAL(clicked(bool)), this, SLOT(slot_ACodecUse(bool)));
 	connect(ui.IDS_VCADECSSTR, SIGNAL(currentItemChanged(QListWidgetItem*, QListWidgetItem*)), this, SLOT(slot_VItemChanged(QListWidgetItem*, QListWidgetItem*)));
@@ -351,6 +355,19 @@ void CSettingsDlg::slot_VCodecUp()
 	ui.IDS_VCADECSSTR->setCurrentRow(indx-1);
 }
 
+void CSettingsDlg::slot_VCodecUpAll()
+{
+	QListWidgetItem *item = ui.IDS_VCADECSSTR->currentItem();
+	if(!item)
+		return;
+	int indx = ui.IDS_VCADECSSTR->currentRow();
+	if(indx==0)
+		return;
+	ui.IDS_VCADECSSTR->takeItem(indx);
+	ui.IDS_VCADECSSTR->insertItem(0, item);
+	ui.IDS_VCADECSSTR->setCurrentRow(0);
+}
+
 void CSettingsDlg::slot_VCodecDown()
 {
 	QListWidgetItem *item = ui.IDS_VCADECSSTR->currentItem();
@@ -362,6 +379,19 @@ void CSettingsDlg::slot_VCodecDown()
 	ui.IDS_VCADECSSTR->takeItem(indx);
 	ui.IDS_VCADECSSTR->insertItem(indx+1, item);
 	ui.IDS_VCADECSSTR->setCurrentRow(indx+1);
+}
+
+void CSettingsDlg::slot_VCodecDownAll()
+{
+	QListWidgetItem *item = ui.IDS_VCADECSSTR->currentItem();
+	if(!item)
+		return;
+	int indx = ui.IDS_VCADECSSTR->currentRow();
+	if(indx==ui.IDS_VCADECSSTR->count()-1)
+		return;
+	ui.IDS_VCADECSSTR->takeItem(indx);
+	ui.IDS_VCADECSSTR->insertItem(ui.IDS_VCADECSSTR->count()-1, item);
+	ui.IDS_VCADECSSTR->setCurrentRow(ui.IDS_VCADECSSTR->count()-1);
 }
 
 void CSettingsDlg::slot_ACodecUp()
@@ -377,6 +407,19 @@ void CSettingsDlg::slot_ACodecUp()
 	ui.IDS_CADECSSTR->setCurrentRow(indx-1);
 }
 
+void CSettingsDlg::slot_ACodecUpAll()
+{
+	QListWidgetItem *item = ui.IDS_CADECSSTR->currentItem();
+	if(!item)
+		return;
+	int indx = ui.IDS_CADECSSTR->currentRow();
+	if(indx==0)
+		return;
+	ui.IDS_CADECSSTR->takeItem(indx);
+	ui.IDS_CADECSSTR->insertItem(0, item);
+	ui.IDS_CADECSSTR->setCurrentRow(0);
+}
+
 void CSettingsDlg::slot_ACodecDown()
 {
 	QListWidgetItem *item = ui.IDS_CADECSSTR->currentItem();
@@ -388,6 +431,19 @@ void CSettingsDlg::slot_ACodecDown()
 	ui.IDS_CADECSSTR->takeItem(indx);
 	ui.IDS_CADECSSTR->insertItem(indx+1, item);
 	ui.IDS_CADECSSTR->setCurrentRow(indx+1);
+}
+
+void CSettingsDlg::slot_ACodecDownAll()
+{
+	QListWidgetItem *item = ui.IDS_CADECSSTR->currentItem();
+	if(!item)
+		return;
+	int indx = ui.IDS_CADECSSTR->currentRow();
+	if(indx==ui.IDS_CADECSSTR->count()-1)
+		return;
+	ui.IDS_CADECSSTR->takeItem(indx);
+	ui.IDS_CADECSSTR->insertItem(ui.IDS_CADECSSTR->count()-1, item);
+	ui.IDS_CADECSSTR->setCurrentRow(ui.IDS_CADECSSTR->count()-1);
 }
 
 void CSettingsDlg::slot_VCodecUse(bool fUse)
