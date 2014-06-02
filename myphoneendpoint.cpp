@@ -344,7 +344,8 @@ PBoolean CMyPhoneEndPoint::OpenVideoChannel(H323Connection &connection,
 
 		//Create grabber.
 		bool NoDevice = false;
-		PString deviceName = config.GetString(VideoDeviceConfigKey, deviceName);
+		PString deviceName = config.GetString(VideoDeviceConfigKey);//, deviceName);
+
 		if (deviceName.IsEmpty()) 
 		{
 			PStringArray devices = PVideoInputDevice::GetDriversDeviceNames(VideoInputDriver);
