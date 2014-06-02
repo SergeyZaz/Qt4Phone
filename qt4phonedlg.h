@@ -6,24 +6,25 @@
 #include <QLabel>
 #include <QMenu>
 #include <QComboBox>
-#include <QtGui/QMainWindow>
 #include <QThread>
+#include <QtGui/QMainWindow>
+#include <QSystemSemaphore>
+#include <QSharedMemory>
 #include "ui_qt4phone.h"
 #include "myphoneendpoint.h"
 #include "global.h"
 
-class WhileThread: public QThread
+class CheckOneApp: public QThread
 {
 	Q_OBJECT
-public:
-	WhileThread()
-	{
-	}
-	~WhileThread()
-	{
-	}
+	QSystemSemaphore *sem;
+	QSharedMemory *shmem;
+	bool fWork;
 	void run();
-
+public:
+	CheckOneApp();
+	~CheckOneApp();
+	bool isRun();
 signals:
 	void signalShow();
 };

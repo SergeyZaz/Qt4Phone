@@ -836,16 +836,16 @@ void QtPhoneDlg::openContacts()
 	
 void QtPhoneDlg::showSlot()
 {
-	//делаем окно активным
-	if (isMinimized())
+	if(!isVisible())
+		showNormal();
+ 	else if(isMinimized())
 		setWindowState(windowState() &  ~Qt::WindowMinimized | Qt::WindowActive);
-	else
-	{
-		show();
-		repaint();
-	}
+
+	repaint();
 
 	activateWindow();
-
+							
 	raise();
+
+	setFocus(); 
 }

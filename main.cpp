@@ -3,42 +3,60 @@
 #include <QTextCodec>
 #include <QMessageBox>
 #include <QObject>
-#include <QSystemSemaphore>
 
-QSystemSemaphore *sem=NULL;
-
-
-#ifdef WIN32
-	#define PROGRAMM_NAME L"Qt4Phone"
-#else
-	#define PROGRAMM_NAME "Qt4Phone"
-#endif
-/*
-HANDLE OneCopyApplicationWork = NULL;
-bool CheckOneCopyApplicationWork()
+/////////////////////////////////////////////////////////////////////////////////////////////////
+CheckOneApp::CheckOneApp()
 {
-	OneCopyApplicationWork = OpenSemaphore(SEMAPHORE_ALL_ACCESS, false, PROGRAMM_NAME);
-	if (OneCopyApplicationWork != NULL)
+}
+
+CheckOneApp::~CheckOneApp()
+{
+	fWork = false;
+	delete shmem;
+	sem->release();
+	wait(500);
+}
+
+bool CheckOneApp::isRun()
+{
+	sem = new QSystemSemaphore("Qt4PhoneSem", 1);
+
+	bool isRunning = false;
+
+	shmem = new QSharedMemory("Qt4PhoneShM");
+	shmem->attach();
+	shmem->detach();
+
+	if (shmem->attach())
 	{
-		CloseHandle(OneCopyApplicationWork);
-		OneCopyApplicationWork=NULL;
-		return false;
+		QMessageBox::critical(0, QObject::tr("Завершение работы"),
+                              QObject::tr("Невозможно загрузить приложение.\nПриложение уже запущено!"));
+		sem->release();
+		isRunning = true;
 	}
-	OneCopyApplicationWork = CreateSemaphore(NULL, false, 1, PROGRAMM_NAME);
-	return true;
-} 
-*/
-void WhileThread::run()
-{
-	while(isRunning())
+	else
 	{
-		if(sem)
-		{
-			sem->acquire();
+		shmem->create(1);
+		isRunning = false;
+		
+		start();
+	}
+	return isRunning;
+}
+	
+void CheckOneApp::run()
+{
+	sem->acquire();
+
+	fWork = true;
+	while(fWork)
+	{
+		if(sem->acquire())
 			emit signalShow();
-		}
+		msleep(100);
 	}
 }
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 class Qt4Phone : public PProcess
 {
@@ -55,14 +73,12 @@ PCREATE_PROCESS(Qt4Phone);
 
 Qt4Phone::Qt4Phone()
   : PProcess("Qt4Phone", "Qt4Phone", 1, 0, AlphaCode, 0)
-//  : PProcess("MyPhone3", "MyPhone3", 1, 0, AlphaCode, 0)
 {
 }
 
 Qt4Phone::~Qt4Phone()
 {
 }
-
 
 void Qt4Phone::Main()
 {
@@ -81,9 +97,6 @@ void Qt4Phone::Main()
 	QTextCodec::setCodecForTr(QTextCodec::codecForName("windows-1251"));
 	QTextCodec::setCodecForCStrings(QTextCodec::codecForName("windows-1251"));  
 
-#ifdef _DEBUG
-	fCreateConsole = true;
-#endif
 
 #ifdef _WIN32
 	if(fCreateConsole)
@@ -107,17 +120,19 @@ void Qt4Phone::Main()
 #endif
 
 	QApplication a(argCount, (char**)argV);
-/*
-	sem = new QSystemSemaphore("Qt4PhoneWhile", 0, QSystemSemaphore::Open);
-	if(!CheckOneCopyApplicationWork())
-	{
-		sem->release();
-		//QMessageBox::critical(0, QObject::tr("Завершение работы"),
-        //                      QObject::tr("Невозможно загрузить приложение.\nПриложение уже запущено!"));
-        return;
-	} 
-*/
+
+
 	QtPhoneDlg *w = new QtPhoneDlg;
+	
+	/////////////////////////////////////////////////////////////////////////////////////////
+	CheckOneApp checkOneApp;
+	if(checkOneApp.isRun())
+	{
+		delete w;
+		return;
+	}
+	int rc = QObject::connect(&checkOneApp, SIGNAL(signalShow()), w, SLOT(showSlot())); 
+	/////////////////////////////////////////////////////////////////////////////////////////
 
 	if (QSystemTrayIcon::isSystemTrayAvailable())
 	{
@@ -131,10 +146,7 @@ void Qt4Phone::Main()
 		w->show();
 	}
 
-	WhileThread *whileThread = new WhileThread;
-	QObject::connect(whileThread, SIGNAL(signalShow()), w, SLOT(showSlot())); 
-	whileThread->start();
 
-	int rc =  a.exec();
+	rc =  a.exec();
 	delete w;
 }
